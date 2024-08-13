@@ -1,11 +1,34 @@
 import SwiftUI
+import ComposableArchitecture
 
 struct MypageView: View {
+    
+    let store: StoreOf<MypageFeature>
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            Text("Hello, World!")
+            Text("로그인 성공")
+            
+            
+            Text("\(store.isLoggedIn)")
+            Text("\(store.user?.id)")
+            Text("\(store.user?.name)")
+            
+        }
     }
 }
 
 #Preview {
-    MypageView()
+    
+    NavigationStack {
+        MypageView(store: Store(initialState: MypageFeature.State(isLoggedIn: true, user: User(id: "1231231", name: "이창희")
+                                                                )){
+            MypageFeature()
+            ._printChanges()
+    })
+        
+    }
+    
+    
 }

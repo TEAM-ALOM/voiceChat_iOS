@@ -1,0 +1,13 @@
+//
+//  Config.xcconfig
+//  AnitiatingApp
+//
+//  Created by 이창희 on 8/6/24.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+KAKAO_NATIVE_APP_KEY = 31768033b35c677c3cfc97937a35abe0
+GOOGLE_CLIENT_ID = 240996318154-dksvsc9fccfmifssdbvqeoia8sg4gt2e.apps.googleusercontent.com
+GOOGLE_REVERSED_CLIENT_ID = com.googleusercontent.apps.240996318154-dksvsc9fccfmifssdbvqeoia8sg4gt2e
