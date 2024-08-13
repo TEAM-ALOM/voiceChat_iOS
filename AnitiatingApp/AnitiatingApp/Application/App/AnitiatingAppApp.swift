@@ -6,12 +6,24 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
+import KakaoSDKCommon
+import KakaoSDKAuth
 
 @main
 struct AnitiatingAppApp: App {
+    
+    @UIApplicationDelegateAdaptor var appDelegate : MyAppDelegate
+    
     var body: some Scene {
+        
         WindowGroup {
-            ContentView()
+           LoginView(store: Store(initialState: LoginFeature.State(isLoggedIn: false
+                                                                       )){
+               LoginFeature()
+                   ._printChanges()
+           })
+            
         }
     }
 }
