@@ -14,8 +14,7 @@ struct LoginView: View {
     
     var body: some View {
         
-        //NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
-        NavigationStack() {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
 
             VStack(spacing:20) {
                 
@@ -36,12 +35,8 @@ struct LoginView: View {
                 .padding(25)
                     
                
-                //NavigationLink(state: LoginFeature.Path.State.mypageState(MypageFeature.State(isLoggedIn: store.isLoggedIn ,user: User(id: store.user?.id ?? "유저 아이디", name: store.user?.name ?? "유저 닉네임")))) {
-                  
-//                NavigationLink(state: MypageFeature.State(isLoggedIn: store.isLoggedIn, user: store.user)){
-//                
-//                }
-//                
+
+               
                 // 카카오톡 로그인
                     Button {
                         store.send(.kakaoLoginButtonTapped)
@@ -50,6 +45,8 @@ struct LoginView: View {
                             .resizable()
                             .frame(width: 300,height: 45)
                     }
+                
+                
                 
                 // 구글 로그인
                 GoogleSignInButton(scheme: .light, style: .wide, action: { store.send(.googleLoginButtonTapped) })
@@ -84,19 +81,21 @@ struct LoginView: View {
    
             
         }
-//        destination: { store in
-//            MypageView(store: store)
-//        }
         
-//
-//           .navigationDestination(isPresented: $store.isLoggedIn.sending(\.setIsLoggedIn)) {
-//               //MainView()
-//               MypageView(store: Store(initialState: MypageFeature.State(isLoggedIn: true, user: User(id: store.user?.id ?? "유저 아이디", name: store.user?.name ?? "유저 닉네임")
-//                                                                       )){
-//                   MypageFeature()
-//
-//           })
-//           }
+        destination: { store in
+            
+            switch store.state {
+            case .mainScene:
+                if let store = store.scope(state: \.mainScene, action: \.mainAction) {
+                    MainView(store: store)
+                }
+                
+            case .mypageScene:
+                if let store = store.scope(state: \.mypageScene, action: \.mypageAction) {
+                    MypageView(store: store)
+                }
+            }
+        }
         
     }
     

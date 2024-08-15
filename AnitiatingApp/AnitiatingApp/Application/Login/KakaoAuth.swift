@@ -13,7 +13,7 @@ import KakaoSDKCommon
 
 class KakaoAuth: ObservableObject {
     
-    var isLoggedIn: Bool = false
+    @Published var isLoggedIn: Bool = false
     var kakaoUser: User?
     
     // 로그인 호출
@@ -21,10 +21,8 @@ class KakaoAuth: ObservableObject {
     func handleKakaoLogin() async {
         if (UserApi.isKakaoTalkLoginAvailable()) {  // 설치 되어 있을 때
             isLoggedIn = await handleLoginWithKakaoTalkApp()
-            print("메소드에서 확인 \(isLoggedIn)")
         } else {                                    // 설치 안되어 있을 때
             isLoggedIn = await handleLoginWithKakaoAccount()
-            print("메소드에서 확인 \(isLoggedIn)")
         }
     }
     
@@ -78,7 +76,7 @@ class KakaoAuth: ObservableObject {
                     print(error)
                     continuation.resume(returning: false)
                 } else {
-                    print("로그아웃 성공")
+                    print("kakao 로그아웃 성공")
                     continuation.resume(returning: true)
                 }
             }
@@ -96,13 +94,11 @@ class KakaoAuth: ObservableObject {
                 } else {
                     print("사용자 정보 가져오기 성공")
                     guard let id = user?.id, let name = user?.kakaoAccount?.profile?.nickname else {
-                        print("id/name is nil")
                         continuation.resume()
                         return
                     }
                     //do something
-                    print("유저 닉네임: \(id)")
-                    print("유저 닉네임: \(name)")
+                    
                     self.kakaoUser = User(id: String(id), name: name)
                     
                     _ = user

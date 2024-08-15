@@ -13,7 +13,7 @@ import SwiftUI
 class GoogleAuth: ObservableObject {
     
 //    @Published var isLoggedIn: Bool =
-    var isLoggedIn: Bool = false
+    @Published var isLoggedIn: Bool = false
     var googleUser: User?
    
     
@@ -21,8 +21,6 @@ class GoogleAuth: ObservableObject {
     func googleLogin() async {
         
             isLoggedIn = await handleGoogleLogin()
-            print("구글 메소드에서 로그인")
-        
     }
     
     @MainActor
@@ -31,11 +29,9 @@ class GoogleAuth: ObservableObject {
             // 로그아웃 성공
             if await handleGoogleLogout() == true {
                 isLoggedIn = false
-                print("구글 메소드에서 로그아웃")
             }
             else {
                 isLoggedIn = true
-                print("구글 메소드에서 로그아웃 실패")
             }
         
     }
@@ -59,7 +55,7 @@ class GoogleAuth: ObservableObject {
         
         await withCheckedContinuation { continuation in
             // rootViewController
-            guard let presentingViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController else { return }
+            guard let presentingViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController else { isLoggedIn = false; return }
             
             // 로그인 진행
             GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController) { signInResult, error in
