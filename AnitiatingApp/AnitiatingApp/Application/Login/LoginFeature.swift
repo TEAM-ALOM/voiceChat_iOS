@@ -35,12 +35,8 @@ struct LoginFeature {
         var isLoggedIn: Bool = false
         var user: User?
         
-        //var path = StackState<Path.State>()
-
-//        var path = StackState<MypageFeature.State>()
-
-
-
+        var path = StackState<Path.State>()
+        
     }
     
     enum Action {
@@ -56,8 +52,8 @@ struct LoginFeature {
         
         case setIsLoggedIn(Bool)    // 바인딩 위한
         
-        //case path(StackAction<Path.State, Path.Action>)
-       // case path(StackAction<MypageFeature.State, MypageFeature.Action>)
+        case path(StackAction<Path.State, Path.Action>)
+       
 
     }
     
@@ -66,14 +62,22 @@ struct LoginFeature {
 
     var body: some ReducerOf<Self> {
         
+
+        
         Reduce { state, action in
+            googleAuth.isLoggedIn = false
+            kakaoAuth.isLoggedIn = false
+
             switch action {
                 
             case .kakaoLoginButtonTapped:
+                
                 return .run { send in
                     await kakaoAuth.handleKakaoLogin()
                     
-                    print("카카오 로그인 상태: \(kakaoAuth.isLoggedIn)")
+                    print("*************카카오 로그인 상태: \(kakaoAuth.isLoggedIn)*************")
+                    print("*************구글 로그인 상태: \(googleAuth.isLoggedIn)*************")
+
                     if kakaoAuth.isLoggedIn {
                         await kakaoAuth.handleUserInfo()
                         if let user = kakaoAuth.kakaoUser {
@@ -87,8 +91,11 @@ struct LoginFeature {
                 }
                 
             case let .loginSuccess(user):
+                
                 state.isLoggedIn = true
                 state.user = user
+                state.path.append(.mainScene(MainFeature.State(isLoggedIn: state.isLoggedIn, user: state.user))) // 수정된 부분
+                
                 return .none
                 
             case .loginFailure:
@@ -110,7 +117,8 @@ struct LoginFeature {
                 return .run { send in
                     await googleAuth.googleLogin()
                     
-                    print("구글 로그인 상태: \(googleAuth.isLoggedIn)")
+                    print("*************카카오 로그인 상태: \(kakaoAuth.isLoggedIn)*************")
+                    print("*************구글 로그인 상태: \(googleAuth.isLoggedIn)*************")
                     if googleAuth.isLoggedIn {
                         if let user = googleAuth.googleUser {
                             await send(.loginSuccess(user))
@@ -127,14 +135,16 @@ struct LoginFeature {
                 
             case .logoutButtonTapped:
                 return .run { send in
-                    await googleAuth.googleLogout()
+                    print("*************카카오 로그인 상태: \(kakaoAuth.isLoggedIn)*************")
+                    print("*************구글 로그인 상태: \(googleAuth.isLoggedIn)*************")
                     if !googleAuth.isLoggedIn {
+                        await googleAuth.googleLogout()
                         await send(.logoutSuccess)
                     } else {
                         await send(.logoutFailure(NSError(domain: "LogoutError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Logout failed"])))
                     }
-                    await kakaoAuth.kakaoLogout()
                     if !kakaoAuth.isLoggedIn {
+                        await kakaoAuth.kakaoLogout()
                         await send(.logoutSuccess)
                     }
                 }
@@ -145,44 +155,73 @@ struct LoginFeature {
                 return .none
                 
                 
+             
+                
+            case let .path(action):
+                switch action {
+                    
+                    //로그아웃 처리
+                case .element(id: _, action: .mainAction(.delegate(.confirmLogout))):
+                    state.isLoggedIn = false
+                    state.user = nil
+                    
+                    
+                    
+                    
+                //case .element(id: _, action: .mainAction(.mypageTabTapped)):
+                  //  state.path.append(.mypageScene(MypageFeature.State(isLoggedIn: state.isLoggedIn, user: state.user)))
+                    
+                default:
+                    return .none
+                    
+                }
+                
+                return .none
             
-//            case .path:
-//                return .none
-//                
+            case .path:
+                return .none
             }
             
         }
-//        .forEach(\.path, action: \.path) {
-//            MypageFeature()
-//        }
+        .forEach(\.path, action: \.path) {
+            Path()
+        }
         
     }
         
     
 }
-//
-//// 네비게이션 스택 path 관련... 안됨
-//extension LoginFeature {
-//    
-//    @Reducer
-//    struct Path {
-//        @ObservableState
-//        enum State: Equatable {
-//            case mypageState(MypageFeature.State)
-//            // case captureImageScene(CaptureMedicinesReducer.State = .init())
-//            
-//        }
-//        
-//        enum Action {
-//            case mypageAction(MypageFeature.Action)
-//            
-//        }
-//        
-//        var body: some ReducerOf<Self> {
-//            Scope(state: \.mypageState, action: \.mypageAction) {
-//                MypageFeature()
-//            }
-//            
-//        }
-//    }
-//}
+
+// 네비게이션 스택 path 관련... 
+extension LoginFeature {
+    
+    @Reducer
+    struct Path {
+        @ObservableState
+        enum State: Equatable {
+            case mainScene(MainFeature.State)
+            case mypageScene(MypageFeature.State)
+            // case captureImageScene(CaptureMedicinesReducer.State = .init())
+            
+        }
+        
+        enum Action {
+            case mainAction(MainFeature.Action)
+            case mypageAction(MypageFeature.Action)
+            
+        }
+        
+        var body: some ReducerOf<Self> {
+            
+            Scope(state: \.mainScene, action: \.mainAction) {
+                MainFeature()
+            }
+            
+            
+            Scope(state: \.mypageScene, action: \.mypageAction) {
+                MypageFeature()
+            }
+            
+        }
+    }
+}

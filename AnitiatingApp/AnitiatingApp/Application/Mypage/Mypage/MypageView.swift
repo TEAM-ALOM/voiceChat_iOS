@@ -7,15 +7,34 @@ struct MypageView: View {
     
     var body: some View {
         VStack {
-            Text("Hello, World!")
-            Text("로그인 성공")
+            
+            HStack {
+                Text("로그인 성공")
+                Text(store.state.isLoggedIn ? "Logged In" : "Logged Out")
+                if let user = store.state.user {
+                    Text(user.id)
+                    Text(user.name)
+                }
+            }
+            
+            List{
+                Text("프로필 변경하기")
+                Text("알림 설정")
+                Text("차단유저 관리")
+                
+                
+                Button {
+                    store.send(.logoutButtonTapped)
+                } label: {
+                    Text("로그아웃")
+                }
+            }
             
             
-            Text("\(store.isLoggedIn)")
-            Text("\(store.user?.id)")
-            Text("\(store.user?.name)")
+
             
         }
+        .navigationTitle(store.user?.name ?? "???")
     }
 }
 
