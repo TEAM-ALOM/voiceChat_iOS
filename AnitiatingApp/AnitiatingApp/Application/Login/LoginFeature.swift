@@ -6,6 +6,9 @@ import Foundation
 struct User : Equatable {
     var id: String
     var name: String
+    var profile: String = "https://play-lh.googleusercontent.com/38AGKCqmbjZ9OuWx4YjssAz3Y0DTWbiM5HB0ove1pNBq_o9mtWfGszjZNxZdwt_vgHo=w240-h480-rw"
+    var coment: String = "나의 한 마디"
+    
     // 다른 사용자 정보들을 추가로 정의할 수 있습니다.
 }
 
@@ -54,7 +57,7 @@ struct LoginFeature {
         
         case path(StackAction<Path.State, Path.Action>)
        
-
+        
     }
     
     @Dependency(\.kakaoAuth) var kakaoAuth   // 사용자 정의 모듈 kakaoAuth 의존성 주입
@@ -165,11 +168,22 @@ struct LoginFeature {
                     state.isLoggedIn = false
                     state.user = nil
                     
-                    
-                    
-                    
                 //case .element(id: _, action: .mainAction(.mypageTabTapped)):
                   //  state.path.append(.mypageScene(MypageFeature.State(isLoggedIn: state.isLoggedIn, user: state.user)))
+                    
+                    
+                    // 마이페이지에서 차단유저 관리 버튼 눌렀을 떄
+                case .element(id: _, action: .mypageAction(.blockedUserButtonTapped)):
+                    state.path.append(.userBlockScene(UserBlockFeature.State()))
+                    
+                    // 마이페이지에서 프로필 수정버튼 눌렀을 떄
+                case .element(id: _, action: .mypageAction(.profileButtonTapped)):
+                    state.path.append(.profileScene(ProfileFeature.State(user: state.user!)))
+                    
+                    
+               
+                    
+                    
                     
                 default:
                     return .none
@@ -201,13 +215,18 @@ extension LoginFeature {
         enum State: Equatable {
             case mainScene(MainFeature.State)
             case mypageScene(MypageFeature.State)
-            // case captureImageScene(CaptureMedicinesReducer.State = .init())
+            
+            case userBlockScene(UserBlockFeature.State)
+            case profileScene(ProfileFeature.State)
             
         }
         
         enum Action {
             case mainAction(MainFeature.Action)
             case mypageAction(MypageFeature.Action)
+            
+            case userBlockAction(UserBlockFeature.Action)
+            case profileAction(ProfileFeature.Action)
             
         }
         
@@ -217,10 +236,19 @@ extension LoginFeature {
                 MainFeature()
             }
             
-            
             Scope(state: \.mypageScene, action: \.mypageAction) {
                 MypageFeature()
             }
+            
+            Scope(state: \.userBlockScene, action: \.userBlockAction) {
+                UserBlockFeature()
+            }
+            
+            Scope(state: \.profileScene, action: \.profileAction) {
+                ProfileFeature()
+            }
+            
+            
             
         }
     }

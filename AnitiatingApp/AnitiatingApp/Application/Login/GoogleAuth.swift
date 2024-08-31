@@ -16,13 +16,14 @@ class GoogleAuth: ObservableObject {
     @Published var isLoggedIn: Bool = false
     var googleUser: User?
    
-    
+    // 구글 로그인 호출
     @MainActor
     func googleLogin() async {
         
             isLoggedIn = await handleGoogleLogin()
     }
     
+    // 구글 로그아웃 호출
     @MainActor
     func googleLogout() async {
         
@@ -33,9 +34,20 @@ class GoogleAuth: ObservableObject {
             else {
                 isLoggedIn = true
             }
-        
     }
     
+    // 구글 회원탈퇴 호출
+    func googleResign() async {
+        
+        if await handleGoogleResign() == true {
+            isLoggedIn = false
+        }
+        else {
+            isLoggedIn = true
+        }
+    }
+    
+    // 구글 로그인 상태인지? 호출
     @MainActor
     func checkState() async {
         
@@ -89,6 +101,26 @@ class GoogleAuth: ObservableObject {
         }
     }
     
+    // 구글 회원 탈퇴
+    func handleGoogleResign() async -> Bool {
+        await withCheckedContinuation { continuation in
+            GIDSignIn.sharedInstance.disconnect { error in
+                
+                // 탈퇴 실패
+                guard error == nil else {
+                    print("구글 회원탈퇴 실패")
+                    continuation.resume(returning: false)
+                    return
+                }
+
+               // 성공
+                print("구글 회원탈퇴 성공")
+                continuation.resume(returning: true)
+                
+            }
+        }
+    }
+    
     // 상태 체크
     func handleCheckState() async -> Bool {
         
@@ -97,7 +129,7 @@ class GoogleAuth: ObservableObject {
                 if error != nil || user == nil {
                     // 로그아웃 상태
                     
-                    print("구글 로그아웃 상태")
+                    print("현재 구글 로그아웃 상태")
                     continuation.resume(returning: false)
 
                 } else {
