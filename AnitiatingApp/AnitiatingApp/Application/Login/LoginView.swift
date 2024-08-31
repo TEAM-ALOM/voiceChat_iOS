@@ -94,6 +94,17 @@ struct LoginView: View {
                 if let store = store.scope(state: \.mypageScene, action: \.mypageAction) {
                     MypageView(store: store)
                 }
+                
+            case .userBlockScene:
+                if let store = store.scope(state: \.userBlockScene, action: \.userBlockAction) {
+                    UserBlockView(store: store)
+                }
+                
+            case .profileScene:
+                if let store = store.scope(state: \.profileScene, action: \.profileAction){
+                    ProfileView(store: store)
+                }
+                
             }
         }
         

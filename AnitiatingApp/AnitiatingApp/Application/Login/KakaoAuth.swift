@@ -34,6 +34,14 @@ class KakaoAuth: ObservableObject {
         }
     }
     
+    // 탈퇴 호출
+    @MainActor
+    func kakaoResign() async {
+        if await handleUserResign() {
+            isLoggedIn = false
+        }
+    }
+    
     // 카카오 앱을 통해 로그인
     func handleLoginWithKakaoTalkApp() async -> Bool {
         await withCheckedContinuation { continuation in
@@ -107,4 +115,27 @@ class KakaoAuth: ObservableObject {
             }
         }
     }
+    
+    
+    // 회원탈퇴
+    func handleUserResign() async -> Bool {
+        await withCheckedContinuation { continuation in
+            
+            UserApi.shared.unlink {(error) in
+                if let error = error {
+                    print("카카오 회원탈퇴 실패")
+                    print(error)
+                    continuation.resume(returning: false)
+                }
+                else {
+                    print("카카오 회원탈퇴 성공")
+                    continuation.resume(returning: true)
+
+                }
+            }
+
+        }
+    }
+    
+    
 }
